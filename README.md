@@ -6,8 +6,8 @@ This repository contains the configuration files and step-by-step instructions f
 
 The following components are required for this deployment:
 
-- **Host Environment:** Proxmox VE
-- **Container OS:** Ubuntu 24.04 LTS (LXC Container)
+- **Host Environment:** Proxmox VE 9.1.2
+- **Container Template:** Ubuntu 24.04 LTS (LXC Container)
 
 ## 🛠️ Proxmox LXC Container Creation
 
@@ -19,7 +19,7 @@ Before proceeding with the PowerDNS installation, let's create the Ubuntu 24.04 
 - **Template:** ubuntu-24.04-standard_24.04-2_amd64.tar.zst
 - **Unprivileged container:** Recommended for better security
 
-You can create the container using the Proxmox web interface or via CLI. Adjust resources as needed for your environment.
+You can create the container using the **Proxmox** web interface or via **CLI**. Adjust resources as needed for your environment.
 
 ---
 
@@ -29,7 +29,7 @@ Once your container is up and running, follow these steps inside your Ubuntu 24.
 
 ### 1. Update and Install Dependencies
 
-First, access your LXC container via the Proxmox shell or SSH:
+First, access your **LXC** container via the **Proxmox** shell or **SSH**:
 
 ```sh
 login: root
@@ -50,7 +50,7 @@ PowerDNS requires a database to store zone and record information. **MariaDB** i
 apt install mariadb-server -y
 ```
 
-After installation, make sure the MariaDB service is running:
+After installation, make sure the **MariaDB** service is running:
 
 ```bash
 systemctl status mariadb
@@ -58,7 +58,7 @@ systemctl status mariadb
 
 ### 3. Secure MariaDB Installation
 
-Once MariaDB is running, it's a good idea to secure your installation:
+Once **MariaDB** is running, it's a good idea to secure your installation:
 
 ```bash
 mysql_secure_installation
@@ -96,13 +96,13 @@ Now, let's create the database and user for PowerDNS. This will keep your DNS da
 
 ### 5. Create PowerDNS Tables (Schema)
 
-With the MariaDB shell open and the database/user created, select the powerdns database:
+With the **MariaDB** shell open and the database/user created, select the powerdns database:
 
 ```sql
 USE powerdns;
 ```
 
-Now, open the [powerdns-schema.sql](./mariadb/powerdns-schema.sql) file from this repository, copy all its contents, and paste them into the MariaDB client. This will create all the required tables.
+Now, open the [powerdns-schema.sql](./mariadb/powerdns-schema.sql) file from this repository, copy all its contents, and paste them into the **MariaDB** client. This will create all the required tables.
 
 To verify the tables were created, run:
 
@@ -112,7 +112,7 @@ SHOW TABLES;
 
 You should see a list of tables like `comments`, `cryptokeys`, `domainmetadata`, `domains`, `records`, `supermasters` and `tsigkeys`.
 
-Once you have verified the tables, you can exit the MariaDB client:
+Once you have verified the tables, you can exit the **MariaDB** client:
 
 ```sql
 EXIT;
@@ -120,7 +120,7 @@ EXIT;
 
 ### 6. Disable systemd-resolved Service
 
-To avoid conflicts with PowerDNS, it's recommended to disable the systemd-resolved service, which manages DNS resolution by default on Ubuntu systems.
+To avoid conflicts with **PowerDNS**, it's recommended to disable the `systemd-resolved` service, which manages DNS resolution by default on **Ubuntu** systems.
 
 Run the following commands:
 
