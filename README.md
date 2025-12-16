@@ -111,3 +111,37 @@ SHOW TABLES;
 ```
 
 You should see a list of tables like `comments`, `cryptokeys`, `domainmetadata`, `domains`, `records`, `supermasters` and `tsigkeys`.
+
+Once you have verified the tables, you can exit the MariaDB client:
+
+```sql
+EXIT;
+```
+
+### 6. Disable systemd-resolved Service
+
+To avoid conflicts with PowerDNS, it's recommended to disable the systemd-resolved service, which manages DNS resolution by default on Ubuntu systems.
+
+Run the following commands:
+
+```bash
+systemctl stop systemd-resolved
+systemctl disable systemd-resolved
+```
+
+### 7. Edit /etc/resolv.conf
+
+After disabling systemd-resolved, you should manually configure your DNS resolver settings. Edit `/etc/resolv.conf` to specify the DNS servers you want to use. For example:
+
+```bash
+nano /etc/resolv.conf
+```
+
+Add or update the following line (replace with your preferred DNS server):
+
+```
+nameserver 8.8.8.8
+nameserver 1.1.1.1
+```
+
+You can add multiple `nameserver` lines if needed. Save and close the file when done.
