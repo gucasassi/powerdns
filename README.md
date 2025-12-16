@@ -76,3 +76,38 @@ You will be prompted with several questions. Here is a recommended set of answer
 - Reload privilege tables now? [Y/n] y
 
 Adjust these answers as needed for your environment and security requirements.
+
+### 4. Create PowerDNS Database and User
+
+Now, let's create the database and user for PowerDNS. This will keep your DNS data organized and secure.
+
+1. Access the MariaDB shell:
+   ```bash
+   mysql -u root -p
+   ```
+2. Create the database and user (replace `your_strong_password` with a secure password):
+   ```sql
+   CREATE DATABASE powerdns;
+   CREATE USER 'powerdns'@'localhost' IDENTIFIED BY 'your_strong_password';
+   GRANT ALL PRIVILEGES ON powerdns.* TO 'powerdns'@'localhost';
+   FLUSH PRIVILEGES;
+   ```
+3. Do not exit the MariaDB client yet! The next step is done from here.
+
+### 5. Create PowerDNS Tables (Schema)
+
+With the MariaDB shell open and the database/user created, select the powerdns database:
+
+```sql
+USE powerdns;
+```
+
+Now, open the [powerdns-schema.sql](./mariadb/powerdns-schema.sql) file from this repository, copy all its contents, and paste them into the MariaDB client. This will create all the required tables.
+
+To verify the tables were created, run:
+
+```sql
+SHOW TABLES;
+```
+
+You should see a list of tables like `comments`, `cryptokeys`, `domainmetadata`, `domains`, `records`, `supermasters` and `tsigkeys`.
