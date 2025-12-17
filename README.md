@@ -145,3 +145,87 @@ nameserver 1.1.1.1
 ```
 
 You can add multiple `nameserver` lines if needed. Save and close the file when done.
+
+### 8. PowerDNS Authoritative Server Installation & Configuration
+
+To ensure the latest version and maintain system security, we use the official PowerDNS repository. This procedure avoids `NO_PUBKEY` and `404 Not Found` errors by using the modern APT keyring architecture.
+
+1. **Install GPG Dependencies**:
+
+   ```bash
+   apt install -y gnupg curl debian-keyring
+   ```
+
+2. **Prepare Keyrings and Download the GPG Key:** We create the modern keyring directory and download the master public key `FD380FBB-pub.asc` via HTTPS. We then convert it to the required binary format `dearmor` for APT.
+
+   ```bash
+    # Create the directory for third-party keys (Modern APT method)
+    sudo mkdir -p /etc/apt/keyrings
+
+    # Download the Master Key, convert to binary format, and save it
+    curl -fsSL https://repo.powerdns.com/FD380FBB-pub.asc | sudo gpg --dearmor -o /etc/apt/keyrings/pdns-auth-50.gpg
+   ```
+
+3. **Configure the PowerDNS Repository:** Create the `pdns.list` file using the `signed-by` syntax to explicitly link the repository to the GPG key.
+
+   ```bash
+   echo "deb [signed-by=/etc/apt/keyrings/pdns-auth-50.gpg] http://repo.powerdns.com/ubuntu noble-auth-50 main" | sudo tee /etc/apt/sources.list.d/pdns.list
+   ```
+
+This will install the latest PowerDNS Authoritative Server from the official repository.
+
+4. **Update Package Lists:**
+
+   Update your package lists to ensure APT recognizes the new PowerDNS repository and fetches the latest package information:
+
+   ```bash
+   apt update
+   ```
+
+Ensure no GPG signature errors (e.g., E: The repository is not signed) appear.
+
+5. **Install PowerDNS and MySQL Backend:**
+
+   Install the PowerDNS Authoritative Server and the MySQL backend so PowerDNS can store and retrieve DNS data from your MariaDB database:
+
+   ```bash
+   apt install -y pdns-server pdns-backend-mysql
+   ```
+
+6. **Validate that the PowerDNS service is running:**
+
+   After installation, check that the PowerDNS service is active and running without errors:
+
+   ```bash
+   systemctl status pdns
+   ```
+
+### 9. Configure PowerDNS to Use MariaDB
+
+Now, let's configure PowerDNS to use the MariaDB backend you set up earlier.
+
+1. **Backup the default bind.conf:**
+
+   It's a good practice to backup the default BIND configuration file before making changes:
+
+   ```bash
+   cd /etc/powerdns/pdns.d && mv bind.conf bind.conf.backup
+   ```
+
+2. **Create the PowerDNS MySQL configuration file:**
+
+   Create a new file called `pdns.local.gmysql.conf` in `/etc/powerdns/pdns.d/` with the following content. You can copy it directly from the repository file [`powerdns/pdns.local.gmysql.conf`](./powerdns/pdns.local.gmysql.conf):
+
+   ```ini
+   # gmysql launcher
+   launch+=gmysql
+   # gmysql parameters
+   gmysql-host=localhost
+   gmysql-port=3306
+   gmysql-dbname=powerdns
+   gmysql-user=powerdns
+   gmysql-password=<your_strong_password>
+   gmysql-dnssec=yes
+   ```
+
+   Replace `<your_strong_password>` with the password you set for the powerdns user in MariaDB.
