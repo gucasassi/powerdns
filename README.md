@@ -200,7 +200,7 @@ Ensure no GPG signature errors (e.g., E: The repository is not signed) appear.
    systemctl status pdns
    ```
 
-### 9. Configure PowerDNS to Use MariaDB
+### 9. Configure PowerDNS
 
 Now, let's configure PowerDNS to use the MariaDB backend you set up earlier.
 
@@ -229,3 +229,41 @@ Now, let's configure PowerDNS to use the MariaDB backend you set up earlier.
    ```
 
    Replace `<your_strong_password>` with the password you set for the powerdns user in MariaDB.
+
+3. **Backup and update main configuration files:**
+
+   Before applying your custom configuration, it's a good practice to backup the default configuration files. Then, replace them with the version provided in this repository:
+
+   ```bash
+   cd /etc/powerdns && mv named.conf named.conf.backup && mv pdns.conf pdns.conf.backup
+   ```
+
+   You can copy and paste the configuration example shown in the repository file (`powerdns/pdns.conf`) into your `/etc/powerdns/pdns.conf`. This example provides a secure and recommended setup for most deployments, including blue team and automation scenarios. Be sure to review the configuration and adjust any parameters (such as API key, webserver address, or database credentials) as needed for your environment.
+
+   To edit the file, you can use:
+
+   ```bash
+   nano /etc/powerdns/pdns.conf
+   ```
+
+4. **Restart PowerDNS and Test**
+
+After completing the configuration, restart the PowerDNS service to apply all changes:
+
+```bash
+systemctl restart pdns
+```
+
+Check that the service is running without errors:
+
+```bash
+systemctl status pdns
+```
+
+Finally, perform a test DNS query using `dig` to verify that PowerDNS is responding as expected:
+
+```bash
+dig @127.0.0.1 -p 5300
+```
+
+You should see a valid DNS response in the output.
